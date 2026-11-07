@@ -3997,10 +3997,10 @@ var require_resolve_block_map = __commonJS({
       let offset = bm.offset;
       let commentEnd = null;
       for (const collItem of bm.items) {
-        const { start, key, sep, value } = collItem;
+        const { start, key, sep: sep2, value } = collItem;
         const keyProps = resolveProps.resolveProps(start, {
           indicator: "explicit-key-ind",
-          next: key ?? sep?.[0],
+          next: key ?? sep2?.[0],
           offset,
           onError,
           parentIndent: bm.indent,
@@ -4014,7 +4014,7 @@ var require_resolve_block_map = __commonJS({
             else if ("indent" in key && key.indent !== bm.indent)
               onError(offset, "BAD_INDENT", startColMsg);
           }
-          if (!keyProps.anchor && !keyProps.tag && !sep) {
+          if (!keyProps.anchor && !keyProps.tag && !sep2) {
             commentEnd = keyProps.end;
             if (keyProps.comment) {
               if (map.comment)
@@ -4038,7 +4038,7 @@ var require_resolve_block_map = __commonJS({
         ctx.atKey = false;
         if (utilMapIncludes.mapIncludes(ctx, map.items, keyNode))
           onError(keyStart, "DUPLICATE_KEY", "Map keys must be unique");
-        const valueProps = resolveProps.resolveProps(sep ?? [], {
+        const valueProps = resolveProps.resolveProps(sep2 ?? [], {
           indicator: "map-value-ind",
           next: value,
           offset: keyNode.range[2],
@@ -4054,7 +4054,7 @@ var require_resolve_block_map = __commonJS({
             if (ctx.options.strict && keyProps.start < valueProps.found.offset - 1024)
               onError(keyNode.range, "KEY_OVER_1024_CHARS", "The : indicator must be at most 1024 chars after the start of an implicit block mapping key");
           }
-          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : composeEmptyNode(ctx, offset, sep, null, valueProps, onError);
+          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : composeEmptyNode(ctx, offset, sep2, null, valueProps, onError);
           if (ctx.schema.compat)
             utilFlowIndentCheck.flowIndentCheck(bm.indent, value, onError);
           offset = valueNode.range[2];
@@ -4145,7 +4145,7 @@ var require_resolve_end = __commonJS({
       let comment = "";
       if (end) {
         let hasSpace = false;
-        let sep = "";
+        let sep2 = "";
         for (const token of end) {
           const { source, type } = token;
           switch (type) {
@@ -4159,13 +4159,13 @@ var require_resolve_end = __commonJS({
               if (!comment)
                 comment = cb;
               else
-                comment += sep + cb;
-              sep = "";
+                comment += sep2 + cb;
+              sep2 = "";
               break;
             }
             case "newline":
               if (comment)
-                sep += source;
+                sep2 += source;
               hasSpace = true;
               break;
             default:
@@ -4208,18 +4208,18 @@ var require_resolve_flow_collection = __commonJS({
       let offset = fc.offset + fc.start.source.length;
       for (let i = 0; i < fc.items.length; ++i) {
         const collItem = fc.items[i];
-        const { start, key, sep, value } = collItem;
+        const { start, key, sep: sep2, value } = collItem;
         const props = resolveProps.resolveProps(start, {
           flow: fcName,
           indicator: "explicit-key-ind",
-          next: key ?? sep?.[0],
+          next: key ?? sep2?.[0],
           offset,
           onError,
           parentIndent: fc.indent,
           startOnNewline: false
         });
         if (!props.found) {
-          if (!props.anchor && !props.tag && !sep && !value) {
+          if (!props.anchor && !props.tag && !sep2 && !value) {
             if (i === 0 && props.comma)
               onError(props.comma, "UNEXPECTED_TOKEN", `Unexpected , in ${fcName}`);
             else if (i < fc.items.length - 1)
@@ -4273,8 +4273,8 @@ var require_resolve_flow_collection = __commonJS({
             }
           }
         }
-        if (!isMap && !sep && !props.found) {
-          const valueNode = value ? composeNode(ctx, value, props, onError) : composeEmptyNode(ctx, props.end, sep, null, props, onError);
+        if (!isMap && !sep2 && !props.found) {
+          const valueNode = value ? composeNode(ctx, value, props, onError) : composeEmptyNode(ctx, props.end, sep2, null, props, onError);
           coll.items.push(valueNode);
           offset = valueNode.range[2];
           if (isBlock(value))
@@ -4286,7 +4286,7 @@ var require_resolve_flow_collection = __commonJS({
           if (isBlock(key))
             onError(keyNode.range, "BLOCK_IN_FLOW", blockMsg);
           ctx.atKey = false;
-          const valueProps = resolveProps.resolveProps(sep ?? [], {
+          const valueProps = resolveProps.resolveProps(sep2 ?? [], {
             flow: fcName,
             indicator: "map-value-ind",
             next: value,
@@ -4297,8 +4297,8 @@ var require_resolve_flow_collection = __commonJS({
           });
           if (valueProps.found) {
             if (!isMap && !props.found && ctx.options.strict) {
-              if (sep)
-                for (const st of sep) {
+              if (sep2)
+                for (const st of sep2) {
                   if (st === valueProps.found)
                     break;
                   if (st.type === "newline") {
@@ -4315,7 +4315,7 @@ var require_resolve_flow_collection = __commonJS({
             else
               onError(valueProps.start, "MISSING_CHAR", `Missing , or : between ${fcName} items`);
           }
-          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : valueProps.found ? composeEmptyNode(ctx, valueProps.end, sep, null, valueProps, onError) : null;
+          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : valueProps.found ? composeEmptyNode(ctx, valueProps.end, sep2, null, valueProps, onError) : null;
           if (valueNode) {
             if (isBlock(value))
               onError(valueNode.range, "BLOCK_IN_FLOW", blockMsg);
@@ -4495,7 +4495,7 @@ var require_resolve_block_scalar = __commonJS({
           chompStart = i + 1;
       }
       let value = "";
-      let sep = "";
+      let sep2 = "";
       let prevMoreIndented = false;
       for (let i = 0; i < contentStart; ++i)
         value += lines[i][0].slice(trimIndent) + "\n";
@@ -4512,24 +4512,24 @@ var require_resolve_block_scalar = __commonJS({
           indent = "";
         }
         if (type === Scalar.Scalar.BLOCK_LITERAL) {
-          value += sep + indent.slice(trimIndent) + content;
-          sep = "\n";
+          value += sep2 + indent.slice(trimIndent) + content;
+          sep2 = "\n";
         } else if (indent.length > trimIndent || content[0] === "	") {
-          if (sep === " ")
-            sep = "\n";
-          else if (!prevMoreIndented && sep === "\n")
-            sep = "\n\n";
-          value += sep + indent.slice(trimIndent) + content;
-          sep = "\n";
+          if (sep2 === " ")
+            sep2 = "\n";
+          else if (!prevMoreIndented && sep2 === "\n")
+            sep2 = "\n\n";
+          value += sep2 + indent.slice(trimIndent) + content;
+          sep2 = "\n";
           prevMoreIndented = true;
         } else if (content === "") {
-          if (sep === "\n")
+          if (sep2 === "\n")
             value += "\n";
           else
-            sep = "\n";
+            sep2 = "\n";
         } else {
-          value += sep + content;
-          sep = " ";
+          value += sep2 + content;
+          sep2 = " ";
           prevMoreIndented = false;
         }
       }
@@ -4712,25 +4712,25 @@ var require_resolve_flow_scalar = __commonJS({
         trimBoth = /^[ \t]+|[ \t]+$/g;
       }
       let res = match[1].replace(trimEnd, "");
-      let sep = " ";
+      let sep2 = " ";
       let pos = line.lastIndex;
       while (match = line.exec(source)) {
         const lm = match[1].replace(trimBoth, "");
         if (lm === "") {
-          if (sep === "\n")
-            res += sep;
+          if (sep2 === "\n")
+            res += sep2;
           else
-            sep = "\n";
+            sep2 = "\n";
         } else {
-          res += sep + lm;
-          sep = " ";
+          res += sep2 + lm;
+          sep2 = " ";
         }
         pos = line.lastIndex;
       }
       const last = /[ \t]*(.*)/sy;
       last.lastIndex = pos;
       match = last.exec(source);
-      return res + sep + (match?.[1] ?? "");
+      return res + sep2 + (match?.[1] ?? "");
     }
     function doubleQuotedValue(source, onError) {
       let res = "";
@@ -5540,14 +5540,14 @@ var require_cst_stringify = __commonJS({
         }
       }
     }
-    function stringifyItem({ start, key, sep, value }) {
+    function stringifyItem({ start, key, sep: sep2, value }) {
       let res = "";
       for (const st of start)
         res += st.source;
       if (key)
         res += stringifyToken(key);
-      if (sep)
-        for (const st of sep)
+      if (sep2)
+        for (const st of sep2)
           res += st.source;
       if (value)
         res += stringifyToken(value);
@@ -6714,18 +6714,18 @@ var require_parser = __commonJS({
         if (this.type === "map-value-ind") {
           const prev = getPrevProps(this.peek(2));
           const start = getFirstKeyStartProps(prev);
-          let sep;
+          let sep2;
           if (scalar.end) {
-            sep = scalar.end;
-            sep.push(this.sourceToken);
+            sep2 = scalar.end;
+            sep2.push(this.sourceToken);
             delete scalar.end;
           } else
-            sep = [this.sourceToken];
+            sep2 = [this.sourceToken];
           const map = {
             type: "block-map",
             offset: scalar.offset,
             indent: scalar.indent,
-            items: [{ start, key: scalar, sep }]
+            items: [{ start, key: scalar, sep: sep2 }]
           };
           this.onKeyLine = true;
           this.stack[this.stack.length - 1] = map;
@@ -6878,15 +6878,15 @@ var require_parser = __commonJS({
                 } else if (isFlowToken(it.key) && !includesToken(it.sep, "newline")) {
                   const start2 = getFirstKeyStartProps(it.start);
                   const key = it.key;
-                  const sep = it.sep;
-                  sep.push(this.sourceToken);
+                  const sep2 = it.sep;
+                  sep2.push(this.sourceToken);
                   delete it.key;
                   delete it.sep;
                   this.stack.push({
                     type: "block-map",
                     offset: this.offset,
                     indent: this.indent,
-                    items: [{ start: start2, key, sep }]
+                    items: [{ start: start2, key, sep: sep2 }]
                   });
                 } else if (start.length > 0) {
                   it.sep = it.sep.concat(start, this.sourceToken);
@@ -7080,13 +7080,13 @@ var require_parser = __commonJS({
             const prev = getPrevProps(parent);
             const start = getFirstKeyStartProps(prev);
             fixFlowSeqItems(fc);
-            const sep = fc.end.splice(1, fc.end.length);
-            sep.push(this.sourceToken);
+            const sep2 = fc.end.splice(1, fc.end.length);
+            sep2.push(this.sourceToken);
             const map = {
               type: "block-map",
               offset: fc.offset,
               indent: fc.indent,
-              items: [{ start, key: fc, sep }]
+              items: [{ start, key: fc, sep: sep2 }]
             };
             this.onKeyLine = true;
             this.stack[this.stack.length - 1] = map;
@@ -7372,7 +7372,7 @@ __export(action_exports, {
   run: () => run
 });
 module.exports = __toCommonJS(action_exports);
-var import_node_fs4 = require("node:fs");
+var import_node_fs5 = require("node:fs");
 
 // ../packages/shared/src/actions-io.ts
 var import_node_crypto = require("node:crypto");
@@ -7418,7 +7418,7 @@ var brand_default = {
     homepageUrl: "https://github.com/mainfast/mainfast",
     docsUrl: "https://github.com/mainfast/mainfast#readme",
     issuesUrl: "https://github.com/mainfast/mainfast/issues",
-    pricingUrl: "https://github.com/mainfast/mainfast#free-and-pro",
+    pricingUrl: "https://mainfast.dev/pricing",
     npmScope: "@mainfast",
     configFile: ".mainfast.yml",
     configFileAlt: ".mainfast.yaml",
@@ -7429,17 +7429,16 @@ var brand_default = {
       freeActiveContributors: 5,
       windowDays: 30,
       proPricePerContributorMonth: "$4",
-      _benefitIds: "Polar licence-key benefit id of each plan (sandbox until launch): a key whose benefit_id is `pro` is Mainfast Pro; `free` is the optional free key (registered user, not Pro). tools/dev-sites/polar.mjs --apply prints the sandbox ids.",
+      _benefitIds: "Polar licence-key benefit id of each plan: a key whose benefit_id is `pro` is Mainfast Pro; `free` is the optional free key (registered user, not Pro).",
       benefitIds: {
-        free: "77fcbd42-f163-444e-9931-c98610f8063f",
-        pro: "9f2bb2ac-6b53-4c17-9cae-a2e2eccfad32"
+        free: "656e762a-ec6e-4e94-b7fd-f7ff879061ca",
+        pro: "ea9b4fcb-3659-404e-bb62-9bec84fb119a"
       }
     },
     polar: {
-      _comment: "Licence keys are checked with Polar's public customer-portal endpoint POST {api}/v1/customer-portal/license-keys/validate {key, organization_id}: no merchant secret. Until launch `api`, organizationId and the benefit ids are the Polar SANDBOX ones (29 Oct 2026); at launch put production Polar and its ids here. While organizationId is all zeros no key is sent anywhere. apiEnv / orgEnv override both, e.g. the sandbox.",
-      api: "https://sandbox-api.polar.sh",
-      sandboxApi: "https://sandbox-api.polar.sh",
-      organizationId: "f450cee3-327c-452e-a949-2557a22a7692",
+      _comment: "Licence keys are checked with Polar's public customer-portal endpoint POST {api}/v1/customer-portal/license-keys/validate {key, organization_id}: no merchant secret. These are the live Polar values. While organizationId is all zeros no key is sent anywhere. apiEnv / orgEnv override both, e.g. the sandbox.",
+      api: "https://api.polar.sh",
+      organizationId: "3a0d763f-8fac-4df0-898a-a59eb60d3506",
       apiEnv: "MAINFAST_POLAR_API",
       orgEnv: "MAINFAST_POLAR_ORG",
       timeoutMs: 3e3
@@ -7456,11 +7455,7 @@ var brand_default = {
       checkName: "Mainfast Intact",
       commentMarker: "<!-- mainfast-intact:sticky -->",
       actionRef: "mainfast/intact@v0",
-      branding: { icon: "git-merge", color: "blue" },
-      plugin: {
-        name: "mainfast",
-        description: "Mainfast Intact: check merge commits for dropped main changes before you push."
-      }
+      branding: { icon: "git-merge", color: "blue" }
     },
     migrations: {
       productName: "Mainfast Migrations",
@@ -7923,7 +7918,7 @@ ${result.notice}
 }
 
 // src/action.ts
-var import_node_path3 = require("node:path");
+var import_node_path4 = require("node:path");
 
 // package.json
 var package_default = {
@@ -8205,7 +8200,7 @@ function parsePolicy(yamlText) {
   const p = `${CONFIG_SECTION}.`;
   unknownKeys(
     raw,
-    ["apply_to", "agents", "flags", "test_checks", "required_checks", "ignore_checks", "coverage", "diff", "paths", "secrets", "warn_conclusion"],
+    ["enabled", "apply_to", "agents", "flags", "test_checks", "required_checks", "ignore_checks", "coverage", "diff", "paths", "secrets", "warn_conclusion"],
     p,
     warnings
   );
@@ -8408,7 +8403,8 @@ async function fetchRequiredSources(gh, owner, repo, branch, opts = {}) {
       rulesets.push(await soft(notes, `GET ${base}/rulesets/${r.id}`, () => gh.get(`${base}/rulesets/${r.id}?includes_parents=true`), r));
     }
   }
-  return { classic, branchRules, rulesets, headSha: typeof info?.commit?.sha === "string" ? info.commit.sha : void 0, notes };
+  const committedAt = info?.commit?.commit?.committer?.date;
+  return { classic, branchRules, rulesets, headSha: typeof info?.commit?.sha === "string" ? info.commit.sha : void 0, headCommittedAt: typeof committedAt === "string" ? committedAt : void 0, notes };
 }
 var STATE_ORDER = ["failure", "timed_out", "cancelled", "action_required", "stale", "pending", "skipped", "neutral", "success"];
 function checkRunState(status, conclusion) {
@@ -9732,9 +9728,9 @@ var MAX_SUMMARY = 65e3;
 var MAX_CELL_ITEM = 200;
 var MAX_LIST = 20;
 var MD = { t: (s, max) => mdText(s, max), i: (s) => mdInline(s), code: (s, max) => mdCode(s, max) };
-function joinCapped(items, sep) {
-  const shown = items.slice(0, MAX_LIST).join(sep);
-  return items.length > MAX_LIST ? `${shown}${sep}+${items.length - MAX_LIST} more` : shown;
+function joinCapped(items, sep2) {
+  const shown = items.slice(0, MAX_LIST).join(sep2);
+  return items.length > MAX_LIST ? `${shown}${sep2}+${items.length - MAX_LIST} more` : shown;
 }
 function headline(r, e = (s) => s) {
   const fails = r.flags.filter((f) => f.severity === "fail").length;
@@ -9898,7 +9894,7 @@ async function publish(api, report, opts = {}) {
   const [owner, repo] = report.repo.split("/");
   const payload = checkRunPayload(report);
   const existing = (await api.listCheckRunsForRef(owner, repo, report.pr.headSha, CHECK_NAME)).find(
-    (r) => r.name === CHECK_NAME && r.head_sha === report.pr.headSha
+    (r) => r.name === CHECK_NAME && r.head_sha === report.pr.headSha && (!opts.checkRunApp || r.app?.slug === opts.checkRunApp)
   );
   const { name: _n, head_sha: _h, ...update } = payload;
   const run2 = existing ? await api.updateCheckRun(owner, repo, existing.id, update) : await api.createCheckRun(owner, repo, payload);
@@ -9960,8 +9956,49 @@ async function resolveWorkflowRunPr(api, owner, repo, run2) {
 }
 
 // src/local.ts
+var import_node_fs4 = require("node:fs");
+var import_node_path3 = require("node:path");
+
+// ../packages/shared/src/repo-file.ts
 var import_node_fs3 = require("node:fs");
 var import_node_path2 = require("node:path");
+var MAX_REPO_FILE_BYTES = 1024 * 1024;
+var UnsafeRepoPathError = class extends Error {
+};
+function lstatOrUndefined(path) {
+  try {
+    return (0, import_node_fs3.lstatSync)(path);
+  } catch (e) {
+    if (e.code === "ENOENT" || e.code === "ENOTDIR") return void 0;
+    throw e;
+  }
+}
+function repoPathKind(root, rel) {
+  const clean = (0, import_node_path2.normalize)(rel);
+  if ((0, import_node_path2.isAbsolute)(rel) || clean === ".." || clean.startsWith(`..${import_node_path2.sep}`)) throw new UnsafeRepoPathError(`refusing a path outside the repository: ${rel}`);
+  let cur = root;
+  let kind = "directory";
+  for (const part of clean.split(import_node_path2.sep).filter((p) => p && p !== ".")) {
+    cur = (0, import_node_path2.join)(cur, part);
+    const st = lstatOrUndefined(cur);
+    if (!st) return void 0;
+    if (st.isSymbolicLink()) throw new UnsafeRepoPathError(`refusing to follow a symlink: ${rel}`);
+    kind = st.isFile() ? "file" : st.isDirectory() ? "directory" : "other";
+  }
+  return kind;
+}
+function readRepoFile(root, rel, maxBytes = MAX_REPO_FILE_BYTES) {
+  const kind = repoPathKind(root, rel);
+  if (kind === void 0) return void 0;
+  if (kind !== "file") throw new UnsafeRepoPathError(`not a regular file: ${rel}`);
+  const fd = (0, import_node_fs3.openSync)((0, import_node_path2.join)(root, rel), import_node_fs3.constants.O_RDONLY | import_node_fs3.constants.O_NOFOLLOW);
+  try {
+    if ((0, import_node_fs3.fstatSync)(fd).size > maxBytes) throw new UnsafeRepoPathError(`too large to read (over ${maxBytes} bytes): ${rel}`);
+    return (0, import_node_fs3.readFileSync)(fd, "utf8");
+  } finally {
+    (0, import_node_fs3.closeSync)(fd);
+  }
+}
 
 // src/diff/git.ts
 var import_node_child_process = require("node:child_process");
@@ -10004,21 +10041,30 @@ function readGitAiNotes(cwd, shas, opts = {}) {
 }
 
 // src/local.ts
-function loadCoverage(paths, cwd) {
+var MAX_COVERAGE_BYTES = 256 * 1024 * 1024;
+function loadCoverage(policyPaths, cwd, explicitPaths = []) {
   const reports = [];
   const missing = [];
-  for (const p of paths) {
-    const abs = (0, import_node_path2.resolve)(cwd, p);
-    if (!(0, import_node_fs3.existsSync)(abs)) {
-      missing.push(p);
-      continue;
+  const refused = [];
+  for (const p of policyPaths) {
+    try {
+      const text = readRepoFile(cwd, p, MAX_COVERAGE_BYTES);
+      if (text === void 0) missing.push(p);
+      else reports.push(parseCoverage(text, p));
+    } catch (e) {
+      if (!(e instanceof UnsafeRepoPathError)) throw e;
+      refused.push({ path: p, reason: e.message });
     }
-    reports.push(parseCoverage((0, import_node_fs3.readFileSync)(abs, "utf8"), p));
   }
-  return { report: mergeCoverage(reports), missing };
+  for (const p of explicitPaths) {
+    const abs = (0, import_node_path3.resolve)(cwd, p);
+    if (!(0, import_node_fs4.existsSync)(abs)) missing.push(p);
+    else reports.push(parseCoverage((0, import_node_fs4.readFileSync)(abs, "utf8"), p));
+  }
+  return { report: mergeCoverage(reports), missing, refused };
 }
 function enrichFromLocal(snap, cwd) {
-  if (!(0, import_node_fs3.existsSync)((0, import_node_path2.resolve)(cwd, ".git")) && !git(cwd, ["rev-parse", "--git-dir"], { allowFail: true })) return { snap, used: false };
+  if (!(0, import_node_fs4.existsSync)((0, import_node_path3.resolve)(cwd, ".git")) && !git(cwd, ["rev-parse", "--git-dir"], { allowFail: true })) return { snap, used: false };
   if (!hasCommit(cwd, snap.pr.headSha) || !hasCommit(cwd, snap.pr.baseSha)) return { snap, used: false };
   const files = diffFiles(cwd, snap.pr.baseSha, snap.pr.headSha);
   const gitAiNotes = readGitAiNotes(
@@ -10059,7 +10105,7 @@ async function run(deps) {
   const eventName = env.GITHUB_EVENT_NAME ?? "";
   let event = {};
   try {
-    if (env.GITHUB_EVENT_PATH) event = JSON.parse((0, import_node_fs4.readFileSync)(env.GITHUB_EVENT_PATH, "utf8"));
+    if (env.GITHUB_EVENT_PATH) event = JSON.parse((0, import_node_fs5.readFileSync)(env.GITHUB_EVENT_PATH, "utf8"));
   } catch {
     log("warning", "Could not read the event payload");
   }
@@ -10099,13 +10145,16 @@ async function run(deps) {
     snap = { ...snap, headChecks: await fetchChecks(api, owner, repo, snap.pr.headSha) };
   }
   const fromFork = !pull.head.repo?.full_name || pull.head.repo.full_name.toLowerCase() !== repoFull.toLowerCase();
-  const coverageFiles = fromFork ? [] : [...policy.coverage.files, ...input(env, "coverage-files").split(/[\n,]/).map((s) => s.trim()).filter(Boolean)];
+  const policyCoverage = fromFork ? [] : policy.coverage.files;
+  const inputCoverage = fromFork ? [] : input(env, "coverage-files").split(/[\n,]/).map((s) => s.trim()).filter(Boolean);
+  const coverageFiles = [...policyCoverage, ...inputCoverage];
   if (fromFork) {
     snap = { ...snap, coverage: void 0, coverageUnavailable: FORK_COVERAGE_NOTE };
     log("info", `Fork PR: coverage ${FORK_COVERAGE_NOTE}; ignored.`);
   } else if (coverageFiles.length) {
-    const { report: report2, missing } = loadCoverage(coverageFiles, workspace);
+    const { report: report2, missing, refused } = loadCoverage(policyCoverage, workspace, inputCoverage);
     if (missing.length) log("warning", `Coverage file(s) not found: ${missing.join(", ")}`);
+    for (const r of refused) log("warning", `Coverage file not read: ${r.reason}`);
     snap = { ...snap, coverage: report2 };
   }
   const localDiff = input(env, "local-diff", "auto");
@@ -10140,11 +10189,11 @@ async function run(deps) {
   setOutput2(env, "agents", report.provenance.agents.join(", "));
   setOutput2(env, "flags", report.flags.map((f) => f.id).join(","));
   if (env.RUNNER_TEMP) {
-    const p = (0, import_node_path3.join)(env.RUNNER_TEMP, "mainfast-evidence.json");
-    (0, import_node_fs4.writeFileSync)(p, JSON.stringify(report, (_k, v) => v instanceof Map ? Object.fromEntries(v) : v, 2));
+    const p = (0, import_node_path4.join)(env.RUNNER_TEMP, "mainfast-evidence.json");
+    (0, import_node_fs5.writeFileSync)(p, JSON.stringify(report, (_k, v) => v instanceof Map ? Object.fromEntries(v) : v, 2));
     setOutput2(env, "report-path", p);
   }
-  if (env.GITHUB_STEP_SUMMARY) (0, import_node_fs4.appendFileSync)(env.GITHUB_STEP_SUMMARY, `${renderCard(report, { marker: false })}
+  if (env.GITHUB_STEP_SUMMARY) (0, import_node_fs5.appendFileSync)(env.GITHUB_STEP_SUMMARY, `${renderCard(report, { marker: false })}
 `);
   if (api instanceof RestClient) await planGate({ gh: api.gh, owner, repo, event, productName: PRODUCT_NAME, env });
   const failJob = input(env, "fail-job", "auto");
