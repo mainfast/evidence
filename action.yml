@@ -1,5 +1,5 @@
 name: "Mainfast Evidence"
-description: "Proof, not review, for pull requests written by coding agents: checks that tests ran on the head commit, required checks passed and tests were not weakened. Posts an evidence card per head commit."
+description: "For pull requests written by coding agents: checks that tests ran and passed on the head commit and were not weakened."
 author: "Mainfast authors"
 branding:
   icon: "check-square"

@@ -7437,7 +7437,7 @@ var brand_default = {
     migrations: {
       productName: "Mainfast Migrations",
       tagline: "database migration guard",
-      description: "Fails a PR whose database migrations would fork the migration history once merged into main (Alembic, Django, Prisma, Rails, Flyway, Drizzle), and re-checks open PRs with a blocking commit status when main moves.",
+      description: "Fails a PR whose database migrations would fork the migration history once merged, and re-checks open PRs when main moves.",
       npmName: "@mainfast/migrations",
       cliName: "mainfast-migrations",
       configSection: "migrations",
@@ -7451,7 +7451,7 @@ var brand_default = {
     rollcall: {
       productName: "Mainfast Rollcall",
       tagline: "required-check integrity audit",
-      description: "Finds required status checks that do not protect anything (never ran, skipped but counted as passing, renamed, path-filtered, merged while pending, drift) by comparing branch protection and rulesets with what recent PRs reported. Keeps one tracking issue open while something is wrong.",
+      description: "Finds required status checks that protect nothing: never ran, skipped but counted as passing, renamed or path-filtered.",
       npmName: "@mainfast/rollcall",
       cliName: "mainfast-rollcall",
       configSection: "rollcall",
@@ -7463,7 +7463,7 @@ var brand_default = {
     owners: {
       productName: "Mainfast Owners",
       tagline: "CODEOWNERS drift check",
-      description: "Finds CODEOWNERS drift: unowned files a PR touches, owners who left the org or lost write access, missing teams, dead patterns and dormant owners.",
+      description: "Finds CODEOWNERS drift: unowned files a PR touches, owners who left or lost write access, missing teams and dead patterns.",
       npmName: "@mainfast/owners",
       cliName: "mainfast-owners",
       configSection: "owners",
@@ -7475,7 +7475,7 @@ var brand_default = {
     evidence: {
       productName: "Mainfast Evidence",
       tagline: "proof, not review, for pull requests written by coding agents",
-      description: "Proof, not review, for pull requests written by coding agents: checks that tests ran on the head commit, required checks passed and tests were not weakened. Posts an evidence card per head commit.",
+      description: "For pull requests written by coding agents: checks that tests ran and passed on the head commit and were not weakened.",
       npmName: "@mainfast/evidence",
       cliName: "mainfast-evidence",
       configSection: "evidence",
@@ -8730,17 +8730,17 @@ var AGENT_CATALOG = [
     bodyMarkers: [/\b(?:app|preview)\.devin\.ai\/sessions\//i, /\blink to devin run\b/i]
   },
   {
-    // Dawnfix (formerly Dawnpatch): its fix job opens draft PRs from `dawnfix/<fingerprint>` branches.
+    // Dawnfix: its fix job opens draft PRs from `dawnfix/<fingerprint>` branches.
     id: "dawnfix",
     name: "Dawnfix",
-    logins: ["dawnfix[bot]", "dawnpatch[bot]"],
-    branchPrefixes: ["dawnfix/", "dawnpatch/"],
-    trailers: [/^co-authored-by:\s*(?:dawnfix|dawnpatch)\b/im],
+    logins: ["dawnfix[bot]"],
+    branchPrefixes: ["dawnfix/"],
+    trailers: [/^co-authored-by:\s*dawnfix\b/im],
     emails: [],
     bodyMarkers: []
   },
   {
-    // UNVERIFIED (from memory, not re-checked in this pass).
+    // UNVERIFIED: the aider/ branch prefix and both trailer forms.
     id: "aider",
     name: "Aider",
     logins: [],

@@ -8,7 +8,7 @@ being merged, did every required check really pass, and did the agent change the
 judge its own work (CI workflows, CODEOWNERS, test config, the tests themselves)?
 
 Part of the [Mainfast suite](https://github.com/mainfast/mainfast/blob/main/README.md). Free for everyone, with no key, under
-[FSL-1.1-ALv2](https://github.com/mainfast/mainfast/blob/main/README.md#licence); see [the plans](https://github.com/mainfast/mainfast/blob/main/README.md#free-and-open-source-and-enterprise).
+[FSL-1.1-ALv2](https://github.com/mainfast/mainfast/blob/main/README.md#licence); see [the plans](https://github.com/mainfast/mainfast/blob/main/README.md#plans).
 
 ## Quick start
 
@@ -79,7 +79,7 @@ agent PR; no signal can loosen the gate. Add your own with `agents:` in `.mainfa
 | Cursor | `Co-authored-by: Cursor <cursoragent@cursor.com>` on agent commits (Cursor forum, staff reply); "Made with Cursor" attribution on Agent commits and PRs (cursor.com Git docs); `cursor/` branches for background agents (Cursor forum) | `cursor[bot]` as a PR author (it is the Bugbot reviewer's login) |
 | Devin | `devin/<timestamp>-<slug>` branches and `Link to Devin run: https://…devin.ai/sessions/…` in the PR body (public Devin PRs, e.g. colinhacks/zod#3893); the "Devin.ai Integration" GitHub app (docs.devin.ai) and its `devin-ai-integration` account opening PRs (public contributor listings) | the bot's noreply email; the exact co-author trailer (docs.devin.ai only says a "Co-authored (Devin + you)" mode exists) |
 | Aider | — | `aider:` commit prefix, `Co-authored-by: aider` trailer, `aider/` branches |
-| Dawnfix (formerly Dawnpatch) | `dawnfix/<fingerprint>` branches for the draft PRs its fix job opens (the Dawnfix spec) | the `dawnfix[bot]` login; the old `dawnpatch[bot]` and `dawnpatch/` names still match |
+| Dawnfix | `dawnfix/<fingerprint>` branches for the draft PRs its fix job opens | the `dawnfix[bot]` login and a `Co-authored-by: dawnfix` trailer |
 
 ## Flags
 
